@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Wikipedia</title>
-<icon>
   <style>
     body {
       margin: 0;
@@ -141,7 +140,7 @@
     iframeContainer.dataset.tabId = tabId;
 
     const iframe = document.createElement('iframe');
-    iframe.src = `proxy.html#${encodeURIComponent(url)}`; // ✅ 修正点
+    iframe.src = url;
 
     iframe.addEventListener('error', () => {
       iframe.srcdoc = "<!DOCTYPE html><html><body style='background:white;'></body></html>";
@@ -171,7 +170,7 @@
 
     currentTabId = tabId;
     const activeIframe = document.querySelector(`.iframe-container[data-tab-id="${tabId}"] iframe`);
-    urlInput.value = decodeURIComponent(activeIframe.src.split('#')[1] || '');
+    urlInput.value = activeIframe.src;
   }
 
   document.getElementById('goButton').addEventListener('click', () => {
@@ -181,9 +180,10 @@
       url = 'https://' + url;
     }
     const iframe = document.querySelector(`.iframe-container[data-tab-id="${currentTabId}"] iframe`);
-    iframe.src = `proxy.html#${encodeURIComponent(url)}`; // ✅ 修正点
+    iframe.src = url;
   });
 
+  // ✅ Enterキーで読み込み
   urlInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       document.getElementById('goButton').click();
@@ -200,16 +200,6 @@
       urlInput.value = url;
       document.getElementById('goButton').click();
     });
-  });
-
-  // ✅ proxy.html からの URL 通知を受信
-  window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'updateURL') {
-      const iframe = document.querySelector(`.iframe-container[data-tab-id="${currentTabId}"] iframe`);
-      if (iframe && event.source === iframe.contentWindow) {
-        urlInput.value = event.data.url;
-      }
-    }
   });
 
   // 初期タブ作成
